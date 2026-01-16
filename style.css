@@ -1,0 +1,78 @@
+:root {
+    --accent: #ffc107;
+    --dark: #131921;
+}
+
+body {
+    background: #f0f2f5;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+/* Navbar Styling */
+.navbar {
+    background: var(--dark);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.cat-btn:hover {
+    color: var(--accent) !important;
+}
+
+.cat-btn.active {
+    color: var(--accent) !important;
+    border-bottom: 2px solid var(--accent);
+    border-radius: 0;
+}
+
+/* Product Cards */
+.item-card {
+    border: none;
+    border-radius: 12px;
+    transition: 0.3s;
+    background: white;
+}
+
+.item-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+}
+
+.img-wrap {
+    height: 200px;
+    padding: 15px;
+    background: white;
+    text-align: center;
+    border-radius: 12px 12px 0 0;
+}
+
+.img-wrap img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* User UI */
+.user-badge {
+    background: #333;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+/* Checkout Box */
+.pay-box {
+    border: 1px solid #ddd;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.pay-box:hover {
+    border-color: var(--accent);
+    background: #fffdf5;
+}

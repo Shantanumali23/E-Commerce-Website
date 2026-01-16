@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA Superstore | Manual Inventory</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark flex-column p-0 sticky-top">
+        <div class="container-fluid py-2 border-bottom border-secondary">
+            <div class="container d-flex align-items-center">
+                <a class="navbar-brand fw-bold fs-2 text-warning" href="#" onclick="location.reload()">AURA.</a>
+                <div class="input-group d-none d-md-flex flex-grow-1 mx-4">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search by name..."
+                        onkeyup="handleSearch()">
+                </div>
+                <div id="userDisplay" class="text-white me-3"></div>
+                <button class="btn btn-warning position-relative" data-bs-toggle="offcanvas"
+                    data-bs-target="#cartSidebar">
+                    <i class="bi bi-cart3"></i>
+                    <span id="cartCount"
+                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                </button>
+            </div>
+        </div>
+        <div class="container-fluid bg-dark py-1 overflow-auto no-scrollbar">
+            <div class="container d-flex">
+                <button class="btn btn-sm text-white-50 me-4 fw-bold cat-btn active"
+                    onclick="filterByCat('All', this)">All Items</button>
+                <button class="btn btn-sm text-white-50 me-4 fw-bold cat-btn"
+                    onclick="filterByCat('Electrical', this)">Electrical</button>
+                <button class="btn btn-sm text-white-50 me-4 fw-bold cat-btn"
+                    onclick="filterByCat('Shoes', this)">Shoes</button>
+                <button class="btn btn-sm text-white-50 me-4 fw-bold cat-btn"
+                    onclick="filterByCat('T-Shirts', this)">T-Shirts</button>
+                <button class="btn btn-sm text-white-50 me-4 fw-bold cat-btn"
+                    onclick="filterByCat('Shirts', this)">Shirts</button>
+                <button class="btn btn-sm text-white-50 me-4 fw-bold cat-btn"
+                    onclick="filterByCat('Watches', this)">Watches</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4 d-flex justify-content-between align-items-center">
+        <h4 id="viewLabel" class="fw-bold">All Products</h4>
+        <select id="priceSort" class="form-select w-auto border-warning" onchange="handleSort()">
+            <option value="default">Sort By: Featured</option>
+            <option value="low">Price: Low to High</option>
+            <option value="high">Price: High to Low</option>
+        </select>
+    </div>
+
+    <div class="container my-4">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" id="productGrid">
+
+            <div class="col product-card-wrapper" data-cat="Electrical" data-price="45000" data-name="Laptop Pro">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="data:image/jpeg;base64,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"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Laptop Pro 14"</h6>
+                        <h5 class="text-primary">₹45,000</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Laptop Pro', 45000)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Electrical" data-price="12000" data-name="Smartphone X">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="data:image/jpeg;base64,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"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Smartphone X</h6>
+                        <h5 class="text-primary">₹12,000</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Smartphone X', 12000)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Electrical" data-price="2500" data-name="Earbuds">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzzxGofu1xXIBlrmykosI3TNmLGwk4Sd0cAw&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Wireless Buds</h6>
+                        <h5 class="text-primary">₹2,500</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Earbuds', 2500)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Electrical" data-price="1500" data-name="Power Bank">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://lh4.googleusercontent.com/proxy/VocrCUspFUicmIhcm4aClt0MhvOriT-1fnTjIsnwjJ7vc1NEVGG1JIHZfT81jE9UfzabBTbaFHOEGFzLmQCb1vXpyf-cOAx5MN6LFYW8c2c2jTi2smqZBqguTeRTGL71B1GTLDsrs7GrWn2v3S4b7T5m"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>20000mAh Power Bank</h6>
+                        <h5 class="text-primary">₹1,500</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Power Bank', 1500)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Electrical" data-price="8000" data-name="Smart Tablet">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOOFaxPXPkbBECdQMAW0CauOANiy_13Mv3ug&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>10-inch Tablet</h6>
+                        <h5 class="text-primary">₹8,000</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Smart Tablet', 8000)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Electrical" data-price="3500" data-name="Bluetooth Speaker">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9cYWSaBNIhOPF2gguIun1olGtIYrHAlOO7w&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Portable Speaker</h6>
+                        <h5 class="text-primary">₹3,500</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Bluetooth Speaker', 3500)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col product-card-wrapper" data-cat="Shoes" data-price="2800" data-name="Nike Air">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://5.imimg.com/data5/SELLER/Default/2021/11/NE/UA/QU/130724519/running-shoes-500x500.jpeg"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Nike Blue Run</h6>
+                        <h5 class="text-primary">₹2,800</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Nike Air', 2800)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Shoes" data-price="3200" data-name="Adidas Boost">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRMSXcWB3g88RgIz-UUHvv_uSqsENczVRHbg&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Adidas Boost</h6>
+                        <h5 class="text-primary">₹3,200</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Adidas Boost', 3200)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Shoes" data-price="1200" data-name="Canvas Shoes">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRS6D_Q5hDi61Q5Q7MibtL0lA5_XjnSvCM3Sg&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Casual Canvas</h6>
+                        <h5 class="text-primary">₹1,200</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Canvas Shoes', 1200)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Shoes" data-price="4500" data-name="Leather Boots">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrECiqZY_Pf5S7P9P2J8fxGY_OmBDS6Y8nXg&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Pure Leather Boots</h6>
+                        <h5 class="text-primary">₹4,500</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Leather Boots', 4500)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Shoes" data-price="1900" data-name="White Sneakers">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img src="https://m.media-amazon.com/images/I/71+QbFCzINL._AC_UY1000_.jpg"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Minimalist Sneakers</h6>
+                        <h5 class="text-primary">₹1,900</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('White Sneakers', 1900)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Shoes" data-price="850" data-name="Sandals">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img src="https://m.media-amazon.com/images/I/71WZg+jmqdL._AC_UY300_.jpg"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Daily Wear Sandals</h6>
+                        <h5 class="text-primary">₹850</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Sandals', 850)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col product-card-wrapper" data-cat="T-Shirts" data-price="599" data-name="Black Tee">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSj1CGOUJBZe91ZaqyvipUQ4_EAuSVllp56kg&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Solid Black T-Shirt</h6>
+                        <h5 class="text-primary">₹599</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Black Tee', 599)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="T-Shirts" data-price="750" data-name="Graphic Tee">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLjs6GSIZmSOvRyJaJDmCHDwqK2sj7fbf8jg&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Urban Graphic Tee</h6>
+                        <h5 class="text-primary">₹750</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Graphic Tee', 750)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="T-Shirts" data-price="450" data-name="Plain White">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_EsQNyRU0uzzLV3TtOW71W743RTjUGa4IDA&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Plain White Tee</h6>
+                        <h5 class="text-primary">₹450</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Plain White', 450)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="T-Shirts" data-price="899" data-name="Oversized Tee">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNkkt9MTXzfL4PFD4SxtOoFQMS8yhXGSgRJg&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Oversized Streetwear</h6>
+                        <h5 class="text-primary">₹899</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Oversized Tee', 899)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="T-Shirts" data-price="650" data-name="Polo Shirt">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOfBNRSMWJnwDbgZ3P4iwUKtU909Siai6ZrQ&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Classic Polo Blue</h6>
+                        <h5 class="text-primary">₹650</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Polo Shirt', 650)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="T-Shirts" data-price="1100" data-name="Full Sleeve">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQU1BQ9_utKdEVPetCHi6WF444nD3yOX3xvuA&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Full Sleeve Winter Tee</h6>
+                        <h5 class="text-primary">₹1,100</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Full Sleeve', 1100)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col product-card-wrapper" data-cat="Shirts" data-price="1499" data-name="Formal White">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2s7831o3QCCxvNeGgjKrw7RUxBeB2OW-AYQ&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>White Formal Shirt</h6>
+                        <h5 class="text-primary">₹1,499</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Formal White', 1499)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Shirts" data-price="1200" data-name="Checkered Shirt">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSe_NdpES_HQ5Vezbr3xitbwDawHwiTHb9vuA&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Checkered Red Shirt</h6>
+                        <h5 class="text-primary">₹1,200</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Checkered Shirt', 1200)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Shirts" data-price="1650" data-name="Denim Shirt">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://5.imimg.com/data5/VM/JE/MY-8811110/men-slim-fit-denim-shirt-500x500.jpg"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Slim Fit Denim</h6>
+                        <h5 class="text-primary">₹1,650</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Denim Shirt', 1650)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Shirts" data-price="1800" data-name="Party Shirt">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqAriHunBy-8fncnpRrj2xH7qVSp2_3afVxw&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Party Shirt</h6>
+                        <h5 class="text-primary">₹1,800</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Party Shirt', 1800)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Shirts" data-price="1100" data-name="Linen Shirt">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4zKqUwHEHnR1xeBMUabuTDAsAGUzvUkRkRw&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Summer Linen Shirt</h6>
+                        <h5 class="text-primary">₹1,100</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Linen Shirt', 1100)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Shirts" data-price="1350" data-name="Black Formal">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYxRPQM3YBi4D5GD3X3L-R5LP15S-MKZd8uw&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Jet Black Formal</h6>
+                        <h5 class="text-primary">₹1,350</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Black Formal', 1350)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col product-card-wrapper" data-cat="Watches" data-price="5500" data-name="Gold Analog">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://5.imimg.com/data5/ANDROID/Default/2023/3/FG/UG/CJ/182970949/product-jpeg.jpg"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Gold Analog Watch</h6>
+                        <h5 class="text-primary">₹5,500</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Gold Analog', 5500)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Watches" data-price="2200" data-name="Digital Sport">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_hyjqD4adhL7wP3we5P_GBqhvNkGJHg2UjA&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Sport Digital Watch</h6>
+                        <h5 class="text-primary">₹2,200</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Digital Sport', 2200)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Watches" data-price="3800" data-name="Smart Watch">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img src="https://m.media-amazon.com/images/I/61QH+Ta0QmL.jpg" alt="Item">
+                    </div>
+                    <div class="card-body">
+                        <h6>Aura Smart Tracker</h6>
+                        <h5 class="text-primary">₹3,800</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Smart Watch', 3800)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Watches" data-price="1500" data-name="Minimalist">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtDQmzcpqo-jsiPhwV-rlKySV-HXIlQwYAPw&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Minimalist White</h6>
+                        <h5 class="text-primary">₹1,500</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Minimalist', 1500)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Watches" data-price="8500" data-name="Luxury Chrono">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://m.media-amazon.com/images/S/aplus-media-library-service-media/32cc0bad-3da3-48a9-aacb-c4f8fecba307.__CR0,216,4500,2784_PT0_SX970_V1___.jpeg"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Luxury Chronograph</h6>
+                        <h5 class="text-primary">₹8,500</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Luxury Chrono', 8500)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col product-card-wrapper" data-cat="Watches" data-price="1200" data-name="Classic Band">
+                <div class="card h-100 item-card">
+                    <div class="img-wrap"><img
+                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVQHzZ2qeUD5zkRLPUHp2iQnDnRHZgVobRhw&s"
+                            alt="Item"></div>
+                    <div class="card-body">
+                        <h6>Leather Band Watch</h6>
+                        <h5 class="text-primary">₹1,200</h5><button class="btn btn-warning btn-sm w-100 fw-bold"
+                            onclick="addToCart('Classic Band', 1200)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="offcanvas offcanvas-end" id="cartSidebar">
+        <div class="offcanvas-header bg-dark text-white">
+            <h5>My Cart</h5><button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div id="cartList"></div>
+            <hr>
+            <div class="d-flex justify-content-between h4 fw-bold"><span>Total:</span><span id="cartTotal">₹0</span>
+            </div>
+            <button class="btn btn-success w-100 mt-3 p-3 fw-bold" onclick="checkAuthAndPay()">PLACE ORDER</button>
+        </div>
+    </div>
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-4" id="modalUI"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
